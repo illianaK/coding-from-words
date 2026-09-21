@@ -1,0 +1,285 @@
+# Android-Optimized Functional XFCE Workspace
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>XFCE Android Vision Word-Compiler</title>
+    <!-- Tailwind CSS (Permitted CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Avoid native double-tap zoom delay on mobile browsers */
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .terminal-font {
+            font-family: 'Fira Code', monospace;
+        }
+
+        /* Custom scrollbars inspired by classic XFCE themes */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #262626;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #404040;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #525252;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .cursor-blink {
+            animation: blink 1s infinite;
+        }
+        /* XFCE window shadows and borders */
+        .xfce-window {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+            border: 1px solid #404040;
+        }
+        /* Specialized container heights for virtual scrolling on small touchscreens */
+        .mobile-height-calc {
+            height: calc(100vh - 120px);
+        }
+        @media (min-width: 1280px) {
+            .mobile-height-calc {
+                height: calc(100vh - 65px);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-zinc-800 text-zinc-100 min-h-screen flex flex-col selection:bg-blue-500/40 select-none overflow-hidden fixed inset-0 w-full home-viewport-fix">
+
+    <!-- XFCE Top Desktop Panel (Touch Optimized Height) -->
+    <div class="h-9 bg-zinc-900 border-b border-zinc-950 px-2 flex items-center justify-between text-xs font-medium text-zinc-300 z-50 shrink-0 select-none">
+        <div class="flex items-center gap-2">
+            <!-- XFCE Application Menu Button (Enlarged for Touch Targets) -->
+            <button class="bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-900 border border-zinc-700 px-3 py-1 rounded flex items-center gap-1.5 transition text-zinc-200 font-semibold min-h-[28px]">
+                <svg class="w-3.5 h-3.5 text-blue-400" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C7.58 2 4 5.58 4 10v4c0 4.42 3.58 8 8 8s8-3.58 8-8v-4c0-4.42-3.58-8-8-8zm-1 3c0-.55.45-1 1-1s1 .45 1 1v3c0 .55-.45 1-1 1s-1-.45-1-1V5zm5 9c0 .55-.45 1-1 1H9c-.55 0-1-.45-1-1s.45-1 1-1h7c0 .55.45 1 1 1z"/>
+                </svg>
+                <span class="hidden sm:inline">Applications</span>
+            </button>
+            <div class="h-4 w-[1px] bg-zinc-700 mx-1"></div>
+            <span id="desktopWorkspaceLabel" class="text-zinc-400 text-[11px] font-mono truncate max-w-[140px] sm:max-w-none">Workspace: /visions</span>
+        </div>
+        
+        <!-- XFCE Window Display Mode Switcher (Visible on Mobile Viewports for Display Switching) -->
+        <div class="xl:hidden flex items-center bg-zinc-950 p-0.5 rounded border border-zinc-800 font-mono text-[10px]">
+            <button id="viewTabThunar" onclick="switchMobileWindow('thunar')" class="px-2.5 py-1 rounded-sm text-blue-400 bg-zinc-800 font-bold transition-all">Thunar</button>
+
+            <button id="viewTabTerminal" onclick="switchMobileWindow('terminal')" class="px-2.5 py-1 rounded-sm text-zinc-400 transition-all">Terminal</button>
+        </div>
+        
+        <div class="hidden sm:flex items-center gap-3 text-[11px] font-mono text-zinc-400">
+            <span class="text-blue-400 text-[10px] hidden md:inline">Android WebView Compatibility Layer</span>
+            <div class="h-4 w-[1px] bg-zinc-700 mx-1 hidden md:inline"></div>
+            <span>Mon Sep 21, 12:22 PM</span>
+        </div>
+    </div>
+
+    <!-- Main Desktop Backdrop Environment Area -->
+    <main class="flex-1 p-2 sm:p-3 overflow-hidden bg-gradient-to-br from-zinc-900 via-neutral-900 to-zinc-900 relative mobile-height-calc">
+        
+        <!-- Background Wallpaper Silhouette Motif -->
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.02] text-zinc-100">
+            <svg class="w-72 h-72 sm:w-96 sm:h-96" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C7.58 2 4 5.58 4 10v4c0 4.42 3.58 8 8 8s8-3.58 8-8v-4c0-4.42-3.58-8-8-8z"/>
+            </svg>
+        </div>
+
+
+        <div class="w-full h-full grid grid-cols-1 xl:grid-cols-12 gap-2 sm:gap-3 relative overflow-hidden">
+            
+            <!-- Left Window: Thunar File Manager Window -->
+            <section id="windowThunar" class="xl:col-span-4 flex flex-col xfce-window bg-zinc-900 rounded overflow-hidden h-full z-10 transition-all duration-200 absolute inset-0 xl:relative xl:opacity-100 xl:pointer-events-auto">
+                <!-- Thunar Window Title Bar -->
+                <div class="h-8 bg-gradient-to-b from-zinc-700 to-zinc-800 border-b border-zinc-950 px-2 flex items-center justify-between shrink-0">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4l2 2h4a2 2 0 012 2v5a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="text-xs font-semibold text-zinc-200">visions - Thunar File Manager</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <button class="w-5 h-5 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 flex items-center justify-center rounded-sm text-xs border border-zinc-950 font-mono">-</button>
+                        <button class="w-5 h-5 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 flex items-center justify-center rounded-sm text-[10px] border border-zinc-950 font-mono">□</button>
+                        <button class="w-5 h-5 bg-zinc-800 hover:bg-rose-600 hover:text-white text-zinc-400 flex items-center justify-center rounded-sm text-xs border border-zinc-950 font-mono">✕</button>
+                    </div>
+                </div>
+
+
+                <!-- Thunar Menu Options Bar Layout -->
+                <div class="h-6 bg-zinc-800 border-b border-zinc-950 px-2 flex items-center gap-3.5 text-[11px] text-zinc-400 shrink-0">
+                    <span class="hover:text-zinc-200 cursor-pointer">File</span>
+                    <span class="hover:text-zinc-200 cursor-pointer">Edit</span>
+                    <span class="hover:text-zinc-200 cursor-pointer">View</span>
+                    <span class="hover:text-zinc-200 cursor-pointer">Go</span>
+                </div>
+
+                <!-- Thunar Path Address Bar Location Tracker -->
+                <div class="h-7 bg-zinc-950 border-b border-zinc-900 px-2 flex items-center gap-1 text-[11px] shrink-0 font-mono text-zinc-400">
+                    <span class="text-zinc-600">Path:</span>
+                    <span id="thunarPathLabel" class="text-blue-400">/visions</span>
+                </div>
+
+                <!-- Thunar Main Split Content Frame View -->
+                <div class="flex-1 flex overflow-hidden">
+                    <!-- Thunar Places Side Bar (Touch-Optimized Layout and Width) -->
+                    <div class="w-24 sm:w-28 bg-zinc-950/40 border-r border-zinc-950 p-1.5 text-[11px] text-zinc-400 font-medium space-y-2.5 shrink-0 overflow-y-auto">
+                        <div class="text-zinc-600 font-bold tracking-wider text-[9px] uppercase px-1">Devices</div>
+
+                        <div class="space-y-1 pl-0.5">
+                            <button id="sidebar-target-fs" onclick="navigateVirtualFolder('file_system')" class="w-full text-left flex items-center gap-1.5 text-zinc-400 hover:text-zinc-200 py-1.5 px-1 rounded transition-colors min-h-[32px]">
+                                <span class="text-zinc-500 text-xs">🖴</span> File System
+                            </button>
+                        </div>
+                        <div class="text-zinc-600 font-bold tracking-wider text-[9px] uppercase pt-1 px-1">Places</div>
+                        <div class="space-y-1 pl-0.5">
+                            <button id="sidebar-target-home" onclick="navigateVirtualFolder('home')" class="w-full text-left flex items-center gap-1.5 text-zinc-400 hover:text-zinc-200 py-1.5 px-1 rounded transition-colors min-h-[32px]">
+                                <span class="text-xs">🏠</span> Home
+                            </button>
+                            <button id="sidebar-target-desktop" onclick="navigateVirtualFolder('desktop')" class="w-full text-left flex items-center gap-1.5 text-zinc-400 hover:text-zinc-200 py-1.5 px-1 rounded transition-colors min-h-[32px]">
+                                <span class="text-xs">🖥</span> Desktop
+                            </button>
+                            <button id="sidebar-target-visions" onclick="navigateVirtualFolder('visions')" class="w-full text-left flex items-center gap-1.5 text-blue-400 bg-zinc-800/60 px-1 py-1 rounded-sm min-h-[32px]">
+                                <span class="text-xs">📂</span> visions
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <!-- Thunar Folder Contents Grid Frame -->
+                    <div class="flex-1 bg-zinc-900/60 p-2 sm:p-3 overflow-y-auto flex flex-col justify-between">
+                        <div class="space-y-3">
+                            <div id="dirCategoryHeader" class="text-zinc-500 text-[10px] font-mono tracking-wider uppercase border-b border-zinc-800 pb-1">Concept Seed Directory Files</div>
+                            
+                            <!-- Dynamic File Storage Content Container Frame Grid (Expanded padding targets) -->
+                            <div id="fileContentGrid" class="grid grid-cols-1 gap-1.5">
+                                <!-- Populated dynamically via JS execution routines -->
+                            </div>
+                        </div>
+
+                        <!-- Target Configuration Subframe -->
+                        <div class="border-t border-zinc-800 pt-3 space-y-3 mt-4">
+                            <div class="text-zinc-500 text-[10px] font-mono tracking-wider uppercase">Lowering Controls</div>
+                            <div>
+                                <label class="block text-[10px] font-mono text-zinc-400 mb-1">Target Compilation Type</label>
+                                <select id="targetCompilationFormat" class="w-full bg-zinc-950 border border-zinc-800 rounded px-2 py-2 text-xs text-zinc-300 font-mono focus:outline-none focus:border-blue-500 min-h-[36px]">
+                                    <option value="narrative">Cinematic Immersive Prose (.prose)</option>
+                                    <option value="blueprint">Detailed World-Building Architecture (.spec)</option>
+
+                                    <option value="poetic">Evocative Imagery Lore Stanzas (.verse)</option>
+                                </select>
+                            </div>
+                            <div class="bg-zinc-950/60 p-2 rounded border border-zinc-950 text-[10px] font-mono text-zinc-500 space-y-1">
+                                <div class="flex justify-between"><span>Selected File:</span><span id="activeFileLabel" class="text-zinc-300 truncate max-w-[100px] sm:max-w-[120px]">None</span></div>
+                                <div class="flex justify-between"><span>Output Rule:</span><span class="text-purple-400">Read/Write Cache</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Window: XFCE Terminal Frame & Write Target Shell -->
+            <section id="windowTerminal" class="xl:col-span-8 flex flex-col gap-2 sm:gap-3 overflow-hidden h-full z-20 transition-all duration-200 absolute inset-0 xl:relative opacity-0 pointer-events-none xl:opacity-100 xl:pointer-events-auto">
+                
+                <!-- XFCE Terminal Window App container -->
+                <div class="flex-1 flex flex-col xfce-window bg-zinc-950 rounded overflow-hidden min-h-[180px]">
+                    <!-- XFCE Terminal App Header Bar -->
+                    <div class="h-8 bg-gradient-to-b from-zinc-700 to-zinc-800 border-b border-zinc-950 px-2 flex items-center justify-between shrink-0">
+
+                        <div class="flex items-center gap-2">
+                            <span class="text-zinc-300 font-bold text-xs">$_</span>
+                            <span id="terminalTitleLabel" class="text-xs font-semibold text-zinc-200 font-mono truncate max-w-[180px] sm:max-w-none">aethon@imagination: /visions</span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <button class="w-5 h-5 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 flex items-center justify-center rounded-sm text-xs border border-zinc-950 font-mono">-</button>
+                            <button class="w-5 h-5 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 flex items-center justify-center rounded-sm text-[10px] border border-zinc-950 font-mono">□</button>
+                            <button class="w-5 h-5 bg-zinc-800 hover:bg-rose-600 hover:text-white text-zinc-400 flex items-center justify-center rounded-sm text-xs border border-zinc-950 font-mono">✕</button>
+                        </div>
+                    </div>
+
+                    <!-- Terminal Menu Bar items representation -->
+                    <div class="h-6 bg-zinc-900 border-b border-zinc-950 px-2 flex items-center gap-3.5 text-[11px] text-zinc-500 shrink-0 select-none">
+                        <span class="hover:text-zinc-300 cursor-pointer">Terminal</span>
+                        <span class="hover:text-zinc-300 cursor-pointer">Tabs</span>
+                    </div>
+
+                    <!-- Core Terminal Processing Workspace Body screen logs display panel -->
+                    <div id="terminalStream" class="flex-1 p-3 overflow-y-auto terminal-font text-xs text-blue-400 space-y-2 leading-relaxed bg-black/90">
+
+                        <div class="text-zinc-500">// XFCE Terminal Emulator Online. Native Touch Engine Enabled.</div>
+                        <div class="text-zinc-500">// Select a target vision seed from Thunar or tap/enter raw thoughts below.</div>
+                        <div class="text-zinc-400">Valid commands: <span class="text-cyan-400">compile [file]</span>, <span class="text-cyan-400">ls</span>, <span class="text-cyan-400">cd [path]</span>, <span class="text-cyan-400">cat [file]</span>, <span class="text-cyan-400">clear</span></div>
+                        <div class="text-zinc-700">--------------------------------------------------------------------------------</div>
+                    </div>
+
+                    <!-- Interactive TTY Input Line Form Wrapper block (Optimized for Android Virtual Keyboard) -->
+                    <div class="border-t border-zinc-900 bg-black/95 p-2.5 flex items-center gap-1.5 shrink-0 min-h-[42px]">
+                        <span id="promptPathHeader" class="terminal-font text-xs font-bold text-purple-400 shrink-0 select-none">aethon@imagination:~/visions$</span>
+                        <form action="javascript:void(0);" onsubmit="submitTerminalForm()" class="flex-1 flex items-center m-0 p-0">
+                            <input type="text" id="terminalPromptInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="w-full bg-transparent border-none outline-none ring-0 focus:ring-0 terminal-font text-xs text-zinc-100 p-0 focus:outline-none" placeholder="Tap to express worded thoughts...">
+                        </form>
+                        <span class="w-2 h-4 bg-blue-400 cursor-blink shrink-0"></span>
+                    </div>
+                </div>
+
+                <!-- Write Buffer Target Screen Document Panel Layer drawer box layout container -->
+                <div class="h-1/2 flex flex-col xfce-window bg-zinc-900 rounded overflow-hidden">
+                    <!-- Target Header Toolbar Menu section navigation tools panel -->
+
+                    <div class="h-9 bg-zinc-950 border-b border-zinc-950 px-2 sm:px-3 flex items-center justify-between shrink-0">
+                        <div class="flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0 animate-pulse"></span>
+                            <span class="text-[10px] sm:text-[11px] font-mono font-bold tracking-wider text-zinc-400 truncate max-w-[130px] sm:max-w-none">VERBAL REGISTER CACHE</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="copyTargetBuffer()" class="text-[10px] font-mono font-medium text-zinc-300 hover:text-white bg-zinc-800 hover:bg-zinc-700 border border-zinc-950 px-2.5 py-1 rounded transition flex items-center gap-1 min-h-[26px]">
+                                Copy
+                            </button>
+                            <button onclick="downloadTargetBuffer()" class="text-[10px] font-mono font-medium text-emerald-400 hover:text-emerald-300 bg-zinc-800 hover:bg-zinc-700 border border-zinc-950 px-2.5 py-1 rounded transition flex items-center gap-1 min-h-[26px]">
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Content block textarea readout window pane (Scrollable & selectable on mobile layout) -->
+                    <div class="flex-1 relative bg-zinc-950/80 p-1">
+                        <textarea id="targetOutputBuffer" readonly class="w-full h-full bg-transparent resize-none focus:outline-none p-3 text-sm text-cyan-300 leading-relaxed placeholder:text-slate-700 italic font-sans" placeholder="/* Structured vision text descriptions emit securely clean inside this block space area post word processing lowering routines. */"></textarea>
+                    </div>
+                </div>
+
+
+            </section>
+        </div>
+    </main>
+
+    <!-- Bottom Desktop Taskbar / Window Tracker Navigation Indicator (Only visible on handheld mobile display constraints) -->
+    <div class="h-9 bg-zinc-900 border-t border-zinc-950 flex items-center justify-around px-2 text-xs font-mono text-zinc-400 xl:hidden shrink-0 z-50">
+        <button onclick="switchMobileWindow('thunar')" id="taskbarBtnThunar" class="flex items-center gap-1.5 text-blue-400 font-bold px-3 py-1 rounded bg-zinc-950/40 border border-zinc-800/80">
+            <span>📁</span> Thunar
+        </button>
+        <button onclick="switchMobileWindow('terminal')" id="taskbarBtnTerminal" class="flex items-center gap-1.5 px-3 py-1 rounded">
+            <span>$_</span> Terminal
+        </button>
+    </div>
+
+    <!-- Interactive Simulator Automation Logic Core Processing Engine -->
+    <script>
+        const terminalStream = document.getElementById('terminalStream');
+        const promptInput = document.getElementById('terminalPromptInput');
+        const targetOutput = document.getElementById('targetOutputBuffer');
+
+        const activeFileLabel = document.getElementById('activeFile
